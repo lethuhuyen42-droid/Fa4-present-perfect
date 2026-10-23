@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>English Adventure Grade 5</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Baloo 2', 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+  background: linear-gradient(160deg, #8ee3ff 0%, #c8f7c5 50%, #fff3a8 100%);
+  min-height: 100vh;
+  color: #2b2d42;
+  font-size: 20px;
+  overflow-x: hidden;
+}
+.cloud { position: fixed; font-size: 60px; opacity: .6; pointer-events: none; animation: drift 40s linear infinite; z-index: 0; }
+.cloud.c1 { top: 8%; left: -80px; }
+.cloud.c2 { top: 30%; left: -120px; animation-duration: 55s; font-size: 80px; }
+.cloud.c3 { top: 70%; left: -100px; animation-duration: 48s; }
+@keyframes drift { from { transform: translateX(0); } to { transform: translateX(120vw); } }
+
+#app { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 14px; }
+
+.statusbar {
+  display: none; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  background: #fff; border: 4px solid #ff9f1c; border-radius: 22px; padding: 8px 18px;
+  box-shadow: 0 6px 0 #e07f00; margin-bottom: 14px; font-weight: 800;
+}
+.statusbar .player { color: #e63946; }
+.statusbar .qcount { color: #1d7fd6; }
+.progress { width: 100%; height: 14px; background: #ffe8b3; border-radius: 10px; overflow: hidden; }
+.progress div { height: 100%; width: 0; background: linear-gradient(90deg, #06d6a0, #ffd166); border-radius: 10px; transition: width .4s; }
+
+.card {
+  background: #fff; border: 4px solid #4cc9f0; border-radius: 28px; padding: 24px;
+  box-shadow: 0 8px 0 #2aa3cc; animation: pop .35s ease;
+}
+@keyframes pop { from { transform: scale(.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+h1 { font-size: 2.3rem; margin: 0 0 6px; color: #e63946; text-align: center; line-height: 1.1; }
+h2 { margin: 0 0 8px; color: #1d7fd6; }
+.sub { text-align: center; color: #555; margin: 0 0 18px; }
+.mascot { font-size: 84px; text-align: center; animation: bounce 1.6s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+
+input[type=text] {
+  width: 100%; font-family: inherit; font-size: 1.4rem; padding: 12px 18px; border: 4px solid #ffd166;
+  border-radius: 18px; text-align: center; outline: none; margin-bottom: 8px;
+}
+input[type=text]:focus { border-color: #06d6a0; }
+.err { color: #e63946; min-height: 28px; text-align: center; font-weight: 700; }
+
+.btn {
+  display: block; margin: 12px auto 0; font-family: inherit; font-weight: 800; font-size: 1.4rem;
+  color: #fff; background: #06d6a0; border: none; border-radius: 20px; padding: 12px 34px;
+  box-shadow: 0 6px 0 #049a74; cursor: pointer; transition: transform .1s, box-shadow .1s;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(5px); box-shadow: 0 1px 0 #049a74; }
+.btn.orange { background: #ff9f1c; box-shadow: 0 6px 0 #c97800; }
+.btn.orange:active { box-shadow: 0 1px 0 #c97800; }
+.btn.pink { background: #ef476f; box-shadow: 0 6px 0 #b82f50; }
+.btn.pink:active { box-shadow: 0 1px 0 #b82f50; }
+.btn.small { display: inline-block; font-size: 1.05rem; padding: 6px 18px; margin: 0; }
+.btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+.tag { display: inline-block; background: #ffd166; color: #7a4d00; border-radius: 14px; padding: 2px 14px; font-weight: 800; font-size: .95rem; margin-bottom: 10px; }
+.task { font-size: 1.15rem; color: #555; margin: 0 0 12px; }
+
+.answer-area {
+  min-height: 80px; border: 4px dashed #4cc9f0; border-radius: 20px; padding: 10px;
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: #f0fbff;
+}
+.answer-area .hint { color: #8a9aa0; font-size: 1rem; }
+.bank { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 18px 0 8px; min-height: 58px; }
+.tile {
+  font-family: inherit; font-size: 1.35rem; font-weight: 800; color: #fff; background: #1d7fd6;
+  border: none; border-radius: 16px;
+  padding: 8px 18px; cursor: pointer; box-shadow: 0 5px 0 #14589a; transition: transform .1s;
+  touch-action: manipulation;
+}
+.tile:hover { transform: translateY(-3px) rotate(-2deg); }
+.tile:active { transform: translateY(3px); }
+.tile:disabled { cursor: default; transform: none; }
+.row-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+.sentence { font-size: 1.9rem; font-weight: 800; text-align: center; margin: 14px 0 20px; line-height: 1.5; }
+.blank { display: inline-block; min-width: 120px; border-bottom: 5px solid #ff9f1c; color: #06b58a; padding: 0 8px; }
+.blank.wrong { color: #e63946; border-color: #e63946; }
+.verbhint { text-align: center; margin-bottom: 14px; }
+.verbhint b { background: #e7f7ff; border: 3px solid #4cc9f0; border-radius: 14px; padding: 3px 14px; }
+.options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.opt {
+  font-family: inherit; font-size: 1.5rem; font-weight: 800; padding: 14px; border-radius: 20px; cursor: pointer;
+  background: #fff7e0; color: #2b2d42; border: 4px solid #ffd166; box-shadow: 0 5px 0 #e0b040; transition: transform .1s;
+}
+.opt:hover { transform: translateY(-3px); background: #fff0c2; }
+.opt.right { background: #b8f5d9; border-color: #06d6a0; box-shadow: 0 5px 0 #049a74; }
+.opt.bad { background: #ffd0d8; border-color: #ef476f; box-shadow: 0 5px 0 #b82f50; }
+.opt:disabled { cursor: default; transform: none; }
+
+.feedback { margin-top: 16px; border-radius: 20px; padding: 12px 18px; font-size: 1.2rem; display: none; }
+.feedback.ok { display: block; background: #d6fbe9; border: 3px solid #06d6a0; color: #05694f; }
+.feedback.no { display: block; background: #ffe1e7; border: 3px solid #ef476f; color: #9c1f3d; }
+.feedback b { font-size: 1.3rem; }
+
+.shake { animation: shake .45s; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-12px); } 40% { transform: translateX(12px); } 60% { transform: translateX(-8px); } 80% { transform: translateX(8px); } }
+.hop { animation: hop .5s; }
+@keyframes hop { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.06) rotate(-1deg); } 70% { transform: scale(1.03) rotate(1deg); } }
+
+.score-box { text-align: center; }
+.score-big { font-size: 5rem; font-weight: 800; color: #e63946; line-height: 1; }
+.score-big small { font-size: 2rem; color: #888; }
+.stars { font-size: 2.4rem; letter-spacing: 6px; }
+.msg { font-size: 1.3rem; margin: 6px 0 12px; }
+.review h3 { color: #1d7fd6; margin: 18px 0 8px; }
+.rv { border: 3px solid #ffd166; background: #fffbea; border-radius: 18px; padding: 12px 16px; margin-bottom: 12px; font-size: 1.05rem; }
+.rv .q { font-weight: 800; margin-bottom: 6px; }
+.rv .you { color: #e63946; }
+.rv .ans { color: #06915f; }
+.rv .why { color: #444; margin-top: 4px; }
+.allright { text-align: center; font-size: 1.3rem; color: #06915f; padding: 10px; }
+
+.confetti { position: fixed; top: -20px; font-size: 28px; pointer-events: none; z-index: 50; animation: fall 1.6s linear forwards; }
+@keyframes fall { to { transform: translateY(105vh) rotate(540deg); opacity: .8; } }
+
+@media (max-width: 600px) {
+  body { font-size: 17px; }
+  h1 { font-size: 1.8rem; }
+  .card { padding: 16px; border-radius: 22px; }
+  .sentence { font-size: 1.5rem; }
+  .tile { font-size: 1.15rem; padding: 7px 14px; }
+  .opt { font-size: 1.25rem; padding: 12px 8px; }
+  .score-big { font-size: 4rem; }
+}
+</style>
+</head>
+<body>
+<div class="cloud c1">☁️</div><div class="cloud c2">☁️</div><div class="cloud c3">☁️</div>
+
+<div id="app">
+  <div class="statusbar" id="statusbar">
+    <span class="player" id="sbPlayer"></span>
+    <span class="qcount" id="sbCount"></span>
+    <div class="progress"><div id="sbBar"></div></div>
+  </div>
+  <div id="screen"></div>
+</div>
+
+<script>
+'use strict';
+
+/* QUESTION DATA */
+var ORDER_QS = [
+  { words: ['I','have','finished','my','homework'], punct: '.', alt: [],
+    why: 'Present Perfect: subject + have/has + V3. With "I" we use "have", and "finished" is the past participle of finish.' },
+  { words: ['She','has','visited','her','grandmother'], punct: '.', alt: [],
+    why: 'A singular subject (She) goes with "has" + V3. "visited" is the past participle of visit.' },
+  { words: ['They','have','lived','in','Hanoi','for','five','years'], punct: '.', alt: [],
+    why: '"They" goes with "have" + V3. The phrase "for five years" shows how long, so it goes at the end.' },
+  { words: ['He','has','never','eaten','sushi'], punct: '.', alt: [],
+    why: 'The adverb "never" goes between "has" and V3. "eaten" is the past participle of eat.' },
+  { words: ['We','have','already','seen','this','film'], punct: '.',
+    alt: [['We','have','seen','this','film','already']],
+    why: 'The adverb "already" usually goes between "have" and V3. "seen" is the past participle of see.' },
+  { words: ['Have','you','ever','been','to','Da','Nang'], punct: '?', alt: [],
+    why: 'Present Perfect question: Have/Has + subject + V3? Here "been" is the past participle of be.' },
+  { words: ['My','mother','has','bought','a','new','bike'], punct: '.', alt: [],
+    why: '"My mother" is singular, so we use "has" + V3. "bought" is the past participle of buy.' },
+  { words: ['The','children','have','played','in','the','park'], punct: '.', alt: [],
+    why: '"The children" is plural, so we use "have" + V3. "played" is the past participle of play.' }
+];
+
+var FILL_QS = [
+  { pre: 'Yesterday I', post: 'to the zoo.', verb: 'go', form: 'V2', answer: 'went',
+    opts: ['go','went','gone','goed'],
+    why: '"Yesterday" signals the Past Simple, so we use V2. The V2 of go is "went".' },
+  { pre: 'She has', post: 'all the cake.', verb: 'eat', form: 'V3', answer: 'eaten',
+    opts: ['ate','eaten','eated','eat'],
+    why: 'After "has" we use V3. The V3 of eat is "eaten".' },
+  { pre: 'We', post: 'a big dog last Sunday.', verb: 'see', form: 'V2', answer: 'saw',
+    opts: ['seen','saw','seed','see'],
+    why: '"Last Sunday" signals the Past Simple, so we use V2. The V2 of see is "saw".' },
+  { pre: 'My dad has', post: 'a new car.', verb: 'buy', form: 'V3', answer: 'bought',
+    opts: ['buyed','buy','bought','boughten'],
+    why: 'After "has" we use V3. The irregular verb buy has the same V2 and V3: "bought".' },
+  { pre: 'They', post: 'TV last night.', verb: 'watch', form: 'V2', answer: 'watched',
+    opts: ['watch','watching','watched','watchen'],
+    why: '"Last night" signals the Past Simple. The regular verb watch adds "ed": "watched".' },
+  { pre: 'I have', post: 'three letters this week.', verb: 'write', form: 'V3', answer: 'written',
+    opts: ['wrote','writed','written','write'],
+    why: 'After "have" we use V3. The V3 of write is "written" (the V2 is "wrote").' },
+  { pre: 'Tom has just', post: 'a photo.', verb: 'take', form: 'V3', answer: 'taken',
+    opts: ['took','taken','taked','take'],
+    why: 'After "has just" we use V3. The V3 of take is "taken" (the V2 is "took").' }
+];
+
+var TOTAL = ORDER_QS.length + FILL_QS.length;
+
+/* STATE */
+var state = { name: '', idx: 0, results: [], tiles: [], placed: [], locked: false };
+var screen = document.getElementById('screen');
+
+/* HELPERS */
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i -= 1) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function fmtSentence(words, punct) {
+  return words.join(' ') + punct;
+}
+
+/* Sound effects with Web Audio */
+var audioCtx = null;
+function beep(freq, start, dur, type) {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type || 'sine';
+    o.frequency.value = freq;
+    var t0 = audioCtx.currentTime + start;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(0.25, t0 + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t0); o.stop(t0 + dur + 0.05);
+  } catch (e) { /* ignore if audio is not supported */ }
+}
+function soundOK() { beep(660, 0, 0.15); beep(880, 0.12, 0.15); beep(1175, 0.24, 0.25); }
+function soundBad() { beep(300, 0, 0.2, 'square'); beep(220, 0.18, 0.3, 'square'); }
+function soundClick() { beep(520, 0, 0.06, 'triangle'); }
+function soundWin() { [523, 659, 784, 1047].forEach(function (f, i) { beep(f, i * 0.15, 0.25); }); }
+
+function confetti(n) {
+  var icons = ['🎉', '⭐', '🌟', '🎈', '✨', '🍀'];
+  for (var i = 0; i < n; i += 1) {
+    var s = document.createElement('div');
+    s.className = 'confetti';
+    s.textContent = icons[Math.floor(Math.random() * icons.length)];
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.animationDelay = (Math.random() * 0.5) + 's';
+    document.body.appendChild(s);
+    (function (el) { setTimeout(function () { el.remove(); }, 2400); })(s);
+  }
+}
+
+/* STATUS BAR */
+function updateStatus() {
+  var sb = document.getElementById('statusbar');
+  sb.style.display = 'flex';
+  document.getElementById('sbPlayer').textContent = 'Player: ' + state.name;
+  document.getElementById('sbCount').textContent = 'Question ' + (state.idx + 1) + '/' + TOTAL;
+  document.getElementById('sbBar').style.width = (state.idx / TOTAL * 100) + '%';
+}
+
+/* START SCREEN */
+function showStart() {
+  document.getElementById('statusbar').style.display = 'none';
+  screen.innerHTML =
+    '<div class="card">' +
+    '<div class="mascot">🦉</div>' +
+    '<h1>English Adventure</h1>' +
+    '<p class="sub">A fun grammar game for Grade 5 students<br>15 exciting questions are waiting for you!</p>' +
+    '<input type="text" id="nameInput" maxlength="20" placeholder="Enter your name" autocomplete="off">' +
+    '<div class="err" id="nameErr"></div>' +
+    '<button class="btn" id="startBtn">🚀 Start</button>' +
+    '</div>';
+  var input = document.getElementById('nameInput');
+  input.focus();
+  function go() {
+    var v = input.value.trim();
+    if (!v) {
+      document.getElementById('nameErr').textContent = 'Please enter your name first!';
+      input.classList.add('shake');
+      setTimeout(function () { input.classList.remove('shake'); }, 500);
+      soundBad();
+      return;
+    }
+    state.name = v;
+    startGame();
+  }
+  document.getElementById('startBtn').onclick = go;
+  input.onkeydown = function (e) { if (e.key === 'Enter') go(); };
+}
+
+function startGame() {
+  state.idx = 0;
+  state.results = [];
+  soundClick();
+  showQuestion();
+}
+
+/* QUESTIONS */
+function showQuestion() {
+  state.locked = false;
+  updateStatus();
+  if (state.idx < ORDER_QS.length) renderOrder(); else renderFill();
+}
+
+/* Part 1: Word order */
+function renderOrder() {
+  var q = ORDER_QS[state.idx];
+  var tiles = shuffle(q.words.map(function (w, i) { return { w: w, id: i }; }));
+  var tries = 0;
+  while (tiles.map(function (t) { return t.id; }).join() === q.words.map(function (w, i) { return i; }).join() && tries < 10) {
+    tiles = shuffle(tiles); tries += 1;
+  }
+  state.tiles = tiles;
+  state.placed = [];
+  screen.innerHTML =
+    '<div class="card">' +
+    '<span class="tag">Part 1: Put the words in order (Present Perfect)</span>' +
+    '<p class="task">Tap the word cards to build the correct sentence!</p>' +
+    '<div class="answer-area" id="ans"></div>' +
+    '<div class="bank" id="bank"></div>' +
+    '<div class="row-btns">' +
+    '<button class="btn orange small" id="clearBtn">🔄 Clear</button>' +
+    '<button class="btn small" id="checkBtn">✅ Check</button>' +
+    '</div>' +
+    '<div class="feedback" id="fb"></div>' +
+    '<button class="btn pink" id="nextBtn" style="display:none"></button>' +
+    '</div>';
+  drawOrder();
+  document.getElementById('clearBtn').onclick = function () {
+    if (state.locked) return;
+    state.placed = []; soundClick(); drawOrder();
+  };
+  document.getElementById('checkBtn').onclick = checkOrder;
+}
+
+function tileById(id) {
+  for (var i = 0; i < state.tiles.length; i += 1) if (state.tiles[i].id === id) return state.tiles[i];
+  return null;
+}
+
+function drawOrder() {
+  var ans = document.getElementById('ans');
+  var bank = document.getElementById('bank');
+  ans.innerHTML = '';
+  bank.innerHTML = '';
+  if (!state.placed.length) {
+    ans.innerHTML = '<span class="hint">Your sentence will appear here...</span>';
+  }
+  state.placed.forEach(function (id) {
+    ans.appendChild(makeTile(tileById(id), true));
+  });
+  state.tiles.forEach(function (t) {
+    if (state.placed.indexOf(t.id) === -1) bank.appendChild(makeTile(t, false));
+  });
+}
+
+function makeTile(t, inAnswer) {
+  var b = document.createElement('button');
+  b.className = 'tile';
+  b.textContent = t.w;
+  b.disabled = state.locked;
+  b.onclick = function () {
+    if (state.locked) return;
+    soundClick();
+    if (inAnswer) state.placed.splice(state.placed.indexOf(t.id), 1);
+    else state.placed.push(t.id);
+    drawOrder();
+  };
+  return b;
+}
+
+function checkOrder() {
+  if (state.locked) return;
+  var q = ORDER_QS[state.idx];
+  if (state.placed.length < q.words.length) {
+    var a = document.getElementById('ans');
+    a.classList.add('shake');
+    setTimeout(function () { a.classList.remove('shake'); }, 500);
+    soundBad();
+    var fb0 = document.getElementById('fb');
+    fb0.className = 'feedback no';
+    fb0.innerHTML = 'Please use all the words!';
+    return;
+  }
+  var userWords = state.placed.map(function (id) { return tileById(id).w; });
+  var norm = function (arr) { return arr.join(' ').toLowerCase(); };
+  var ok = norm(userWords) === norm(q.words);
+  if (!ok) {
+    q.alt.forEach(function (al) { if (norm(userWords) === norm(al)) ok = true; });
+  }
+  state.locked = true;
+  drawOrder();
+  document.getElementById('checkBtn').disabled = true;
+  document.getElementById('clearBtn').disabled = true;
+  var correctText = fmtSentence(q.words, q.punct);
+  state.results.push({
+    ok: ok,
+    type: 'Word order',
+    question: 'Put the words in order: ' + shuffle(q.words).join(' / '),
+    user: fmtSentence(userWords, q.punct),
+    correct: correctText,
+    why: q.why
+  });
+  giveFeedback(ok, correctText, q.why, document.getElementById('ans'));
+}
+
+/* Part 2: Fill in the blank */
+function renderFill() {
+  var q = FILL_QS[state.idx - ORDER_QS.length];
+  screen.innerHTML =
+    '<div class="card">' +
+    '<span class="tag">Part 2: Fill in the blank (Past Simple and Past Participle)</span>' +
+    '<p class="task">Choose the correct form of the verb to fill in the blank!</p>' +
+    '<div class="verbhint">Verb: <b>' + esc(q.verb) + '</b> &nbsp;Use form: <b>' + (q.form === 'V2' ? 'V2 (Past Simple)' : 'V3 (Past Participle)') + '</b></div>' +
+    '<div class="sentence" id="sent">' + esc(q.pre) + ' <span class="blank" id="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> ' + esc(q.post) + '</div>' +
+    '<div class="options" id="opts"></div>' +
+    '<div class="feedback" id="fb"></div>' +
+    '<button class="btn pink" id="nextBtn" style="display:none"></button>' +
+    '</div>';
+  var box = document.getElementById('opts');
+  shuffle(q.opts).forEach(function (o) {
+    var b = document.createElement('button');
+    b.className = 'opt';
+    b.textContent = o;
+    b.onclick = function () { chooseFill(q, o, b); };
+    box.appendChild(b);
+  });
+}
+
+function chooseFill(q, choice, btn) {
+  if (state.locked) return;
+  state.locked = true;
+  var ok = choice === q.answer;
+  var blank = document.getElementById('blank');
+  blank.textContent = choice;
+  if (!ok) blank.classList.add('wrong');
+  var all = document.querySelectorAll('.opt');
+  for (var i = 0; i < all.length; i += 1) {
+    all[i].disabled = true;
+    if (all[i].textContent === q.answer) all[i].classList.add('right');
+  }
+  if (!ok) btn.classList.add('bad');
+  var full = q.pre + ' ' + q.answer + ' ' + q.post;
+  state.results.push({
+    ok: ok,
+    type: 'Fill in the blank',
+    question: q.pre + ' ____ ' + q.post + ' (' + q.verb + ', ' + q.form + ')',
+    user: choice,
+    correct: q.answer,
+    why: q.why
+  });
+  giveFeedback(ok, full, q.why, document.getElementById('sent'));
+}
+
+/* Shared feedback */
+function giveFeedback(ok, correctText, why, animEl) {
+  var fb = document.getElementById('fb');
+  if (ok) {
+    fb.className = 'feedback ok';
+    fb.innerHTML = '<b>🎉 Correct! Great job!</b><br>' + esc(correctText);
+    animEl.classList.add('hop');
+    soundOK();
+    confetti(14);
+  } else {
+    fb.className = 'feedback no';
+    fb.innerHTML = '<b>😅 Not quite. Keep trying!</b><br>Correct answer: <b>' + esc(correctText) + '</b><br>' + esc(why);
+    animEl.classList.add('shake');
+    soundBad();
+  }
+  var nb = document.getElementById('nextBtn');
+  nb.style.display = 'block';
+  nb.textContent = (state.idx + 1 >= TOTAL) ? '🏆 See my results' : 'Next question ➡️';
+  nb.onclick = function () {
+    soundClick();
+    state.idx += 1;
+    if (state.idx >= TOTAL) showResult(); else showQuestion();
+  };
+  nb.focus();
+}
+
+/* RESULT SCREEN */
+function showResult() {
+  document.getElementById('sbBar').style.width = '100%';
+  document.getElementById('sbCount').textContent = 'Finished ' + TOTAL + '/' + TOTAL;
+  var correct = state.results.filter(function (r) { return r.ok; }).length;
+  var score = Math.round(correct / TOTAL * 10 * 10) / 10;
+  var stars = score >= 9 ? 3 : score >= 7 ? 2 : score >= 5 ? 1 : 0;
+  var starStr = '';
+  for (var i = 0; i < 3; i += 1) starStr += (i < stars ? '⭐' : '☆');
+  var msg = score >= 9 ? 'Amazing! You are an English superstar!'
+          : score >= 7 ? 'Very good! You did a great job!'
+          : score >= 5 ? 'Nice work! Check your mistakes below to get even better!'
+          : 'Do not give up! Review your mistakes and try again. You can do it!';
+  var wrong = state.results.map(function (r, i) { r.n = i + 1; return r; }).filter(function (r) { return !r.ok; });
+
+  var html =
+    '<div class="card score-box">' +
+    '<div class="mascot">' + (score >= 7 ? '🏆' : '💪') + '</div>' +
+    '<h2>' + esc(state.name) + ', you finished the game!</h2>' +
+    '<div class="score-big">' + score + '<small>/10</small></div>' +
+    '<div class="stars">' + starStr + '</div>' +
+    '<p class="msg">You got ' + correct + ' out of ' + TOTAL + ' correct. ' + msg + '</p>' +
+    '<div class="review" style="text-align:left"><h3>📋 Review your mistakes</h3>';
+  if (!wrong.length) {
+    html += '<div class="allright">🎉 You did not make any mistakes. Excellent!</div>';
+  } else {
+    wrong.forEach(function (r) {
+      html +=
+        '<div class="rv">' +
+        '<div class="q">Question ' + r.n + ' (' + esc(r.type) + '): ' + esc(r.question) + '</div>' +
+        '<div class="you">❌ Your answer: ' + esc(r.user) + '</div>' +
+        '<div class="ans">✅ Correct answer: ' + esc(r.correct) + '</div>' +
+        '<div class="why">💡 ' + esc(r.why) + '</div>' +
+        '</div>';
+    });
+  }
+  html += '</div><button class="btn" id="replayBtn">🔁 Play again</button></div>';
+  screen.innerHTML = html;
+  window.scrollTo(0, 0);
+  if (score >= 5) { soundWin(); confetti(40); } else { beep(400, 0, 0.3); }
+  document.getElementById('replayBtn').onclick = startGame;
+}
+
+showStart();
+</script>
+</body>
+</html>
